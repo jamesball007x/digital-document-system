@@ -1,0 +1,10 @@
+{
+  "name": "digital-document-management-frontend",
+  "version": "1.0.0",
+  "description": "Frontend - ระบบจัดการเอกสารดิจิทัล",
+  "scripts": {
+    "start": "npx serve . -l 5500",
+    "dev": "npx serve . -l 5500"
+  },
+  "devDependencies": {}
+}
