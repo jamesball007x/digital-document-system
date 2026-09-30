@@ -169,12 +169,13 @@ a:hover {
 }
 
 .login-headline {
-  font-size: clamp(32px, 3.5vw, 52px);
+  font-size: clamp(28px, 3vw, 44px);
   font-weight: 900;
-  line-height: 1.1;
-  letter-spacing: -1.5px;
+  line-height: 1.22;
+  letter-spacing: -0.5px;
   color: #fff;
   margin-bottom: 20px;
+  word-break: keep-all;
 }
 
 .login-headline .hl-grad {
