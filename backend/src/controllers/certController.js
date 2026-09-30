@@ -33,10 +33,13 @@ exports.getCertificateById = async (req, res) => {
 exports.createCertificate = async (req, res) => {
   try {
     const { userId, certSerial, issuedBy, issuedDate, expiredDate } = req.body;
-    const targetUserId = userId || req.session.user.id;
+    const targetUserId = (userId || req.session.user.id || '').trim();
 
-    const users = await db.query('SELECT name FROM users WHERE id = ?', [targetUserId]);
-    if (!users.length) return res.status(404).json({ error: 'ไม่พบผู้ใช้' });
+    const users = await db.query(
+      'SELECT id, name FROM users WHERE id = ? OR username = ? OR name LIKE ?',
+      [targetUserId, targetUserId, `%${targetUserId}%`]
+    );
+    if (!users.length) return res.status(404).json({ error: 'ไม่พบผู้ใช้ที่ระบุ' });
 
     const serial = sanitize(certSerial) || 'CERT-' + Date.now().toString(36).toUpperCase();
     const existing = await db.query('SELECT id FROM certificates WHERE certSerial = ?', [serial]);
@@ -44,7 +47,7 @@ exports.createCertificate = async (req, res) => {
 
     const newCert = {
       id: 'cert' + Date.now(),
-      userId: targetUserId,
+      userId: users[0].id,
       userName: users[0].name,
       certSerial: serial,
       issuedBy: sanitize(issuedBy) || 'DocMS Internal CA',

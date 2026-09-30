@@ -1558,6 +1558,16 @@ const App = {
     const area = document.getElementById('contentArea');
     const isAdmin = this.user.role === 'admin';
 
+    let allUsers = [];
+    if (isAdmin) {
+      try {
+        allUsers = await this.api('/api/users');
+        if (!Array.isArray(allUsers)) allUsers = [];
+      } catch (e) {
+        console.warn('Could not fetch users for cert dropdown:', e);
+      }
+    }
+
     const statusColors = { active: 'var(--accent-green)', revoked: 'var(--accent-red)', expired: 'var(--accent-orange)' };
     const statusTexts = { active: 'ใช้งาน', revoked: 'เพิกถอน', expired: 'หมดอายุ' };
 
@@ -1578,13 +1588,23 @@ const App = {
       </tr>`;
     }).join('');
 
+    const userOptions = allUsers.map(u => 
+      `<option value="${u.id}">${u.name} (${u.roleName || u.role} — ${u.username})</option>`
+    ).join('');
+
     const createForm = isAdmin ? `
       <div class="content-card" style="margin-bottom:24px">
         <div class="content-card-header"><h3><i class="fas fa-plus-circle" style="color:var(--accent-green)"></i> ออกใบรับรองดิจิทัลใหม่</h3></div>
         <div class="content-card-body">
           <form id="certForm">
             <div class="doc-detail">
-              <div class="doc-detail-item form-group"><label><i class="fas fa-user"></i> รหัสผู้ใช้</label><input type="text" id="certUserId" placeholder="เช่น u1740123456" required></div>
+              <div class="doc-detail-item form-group">
+                <label><i class="fas fa-user"></i> เลือกผู้ใช้งาน *</label>
+                <select id="certUserId" required style="width:100%;padding:10px;border:1px solid var(--border-color);border-radius:var(--radius-sm);background:var(--bg-input);color:var(--text-primary)">
+                  <option value="">-- เลือกผู้ใช้งานในระบบ --</option>
+                  ${userOptions}
+                </select>
+              </div>
               <div class="doc-detail-item form-group"><label><i class="fas fa-fingerprint"></i> หมายเลข Serial</label><input type="text" id="certSerial" placeholder="เว้นว่างเพื่อสร้างอัตโนมัติ"></div>
               <div class="doc-detail-item form-group"><label><i class="fas fa-building"></i> ออกโดย (CA)</label><input type="text" id="certIssuedBy" value="DocMS Internal CA"></div>
               <div class="doc-detail-item form-group"><label><i class="fas fa-calendar"></i> วันหมดอายุ</label><input type="date" id="certExpDate"></div>
